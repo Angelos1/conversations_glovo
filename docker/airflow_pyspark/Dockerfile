@@ -11,6 +11,8 @@ RUN mkdir -p ./data_lake/input
 
 RUN mkdir -p ./data_lake/output
 
+RUN mkdir -p ./catalog
+
 ADD ./start_airflow.sh .
 
 ENTRYPOINT ["/start_airflow.sh"]

@@ -1,16 +1,19 @@
-from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
-
-from pyspark.sql import SparkSession
 from pyspark.sql.window import Window
 from pyspark.sql.functions import unix_timestamp, when, first, col, min, row_number, year, month
-
 from pyspark.sql import SparkSession
+from datetime import datetime, date, timedelta
+import logging
+import os
+import json
+
+# execution date of the pipeline
+date_today = date.today()
 
 input_dir = "/data_lake/input"
-output_dir = "/data_lake/output"
+output_dir = "/data_lake/output/{}".format(date_today)
 
 # filenames for the data files that are created in between the ETL steps
 customer_courier_chat_messages_filename = "customer_courier_chat_messages"
@@ -21,36 +24,32 @@ last_message_order_stage_filename = "last_message_order_stage"
 aggregations_filename = "aggregations"
 customer_courier_conversations_filename = "customer_courier_conversations"
 
-def read_parquet(spark_session ,dir , filename) :
+def read_parquet(spark_session, dir, filename):
     return spark_session.read.parquet("{}/{}".format(dir, filename))
-
-
 
 first_message_senders_filename = "first_message_senders"
 
 spark = SparkSession.builder.appName("ConversationAggregation").master("local").getOrCreate()
 
 default_args = {
-    'owner': 'udacity',
-    'depends_on_past': False,
-    'start_date': datetime.now(),
+    'owner': 'Glovo',
     'retries': 3,
-    'retry_delay': timedelta(minutes=5),
-    'catchup': False,
-    'email_on_retry': False,
-    'schedule_interval': '0 * * * *'
+    'retry_delay': timedelta(minutes=2),
+    'email_on_retry': True,
 }
 
-dag = DAG('udac_example_daggg',
+dag = DAG('conversations_pipeline',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
-          schedule_interval='0 * * * *'
+          start_date=datetime.now(),
+          schedule_interval="@monthly"
           )
 
 start_operator = DummyOperator(task_id='Begin_execution', dag=dag)
 
 
 # -----------------------------------------------------------------------------------------------------------------------
+# Code block for enhance_dataset_operator
 def enhance_dataset():
     customer_courier_messages = spark.read.option("multiline", "true") \
         .json("{}/{}.json".format(input_dir, customer_courier_chat_messages_filename))
@@ -71,9 +70,10 @@ enhance_dataset_operator = PythonOperator(
     python_callable=enhance_dataset,
     dag=dag
 )
-
+# -----------------------------------------------------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------------------------------------------------
+# Code block for first_message_senders_operator
 
 def find_first_message_senders():
     # required_fields_df = spark.read.parquet("{}/{}".format(output_dir, customer_courier_chat_messages_enhanced_filename)) \
@@ -104,9 +104,10 @@ first_message_senders_operator = PythonOperator(
     python_callable=find_first_message_senders,
     dag=dag
 )
-
+# -----------------------------------------------------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------------------------------------------------
+# Code block for first_responsetime_delays_operator
 
 def find_first_responsetime_delays():
     # finding first_responsetime_delay_seconds
@@ -138,15 +139,16 @@ first_responsetime_delays_operator = PythonOperator(
     python_callable=find_first_responsetime_delays,
     dag=dag
 )
-
+# -----------------------------------------------------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------------------------------------------------
+# Code block for last_message_order_stage_operator
 
 def find_last_message_order_stage():
     # finding latest order stage
     # required_fields_df = spark.read.parquet("/data_lake/output/{}".format(customer_courier_chat_messages_enhanced_filename)) \
     #     .select("orderId", "orderStage", "messageSentTimestamp")
-    required_fields_df = read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename)\
+    required_fields_df = read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename) \
         .select("orderId", "orderStage", "messageSentTimestamp")
 
     window_spec = Window.partitionBy("orderId").orderBy(col("messageSentTimestamp").desc())
@@ -169,12 +171,16 @@ def find_last_message_order_stage():
         .mode("overwrite") \
         .parquet("{}/{}".format(output_dir, last_message_order_stage_filename))
 
+
 last_message_order_stage_operator = PythonOperator(
     task_id="Last_message_order_stage",
     python_callable=find_last_message_order_stage,
     dag=dag
 )
 # -----------------------------------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------------------------------
+# Code block for aggregate_fields_operator
 
 def calculate_aggregate_fields():
     # calculating the final fields that can be calculated with an aggregation on the initial messages dataset
@@ -206,15 +212,18 @@ def calculate_aggregate_fields():
         .mode("overwrite") \
         .parquet("{}/{}".format(output_dir, aggregations_filename))
 
+
 aggregate_fields_operator = PythonOperator(
     task_id="Aggregate_fields",
     python_callable=calculate_aggregate_fields,
     dag=dag
 )
+# -----------------------------------------------------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------------------------------------------------
-def customer_courier_conversations_stats():
+# Code block for customer_courier_conversations_operator
 
+def customer_courier_conversations_stats():
     # reading the nessesary files and creating the required pyspark temporary views for the final query
     aggregations = read_parquet(spark, output_dir, aggregations_filename)
     aggregations.createOrReplaceTempView("aggregations")
@@ -279,10 +288,104 @@ customer_courier_conversations_operator = PythonOperator(
     dag=dag
 )
 
+
 # -----------------------------------------------------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------------------------------------------------
+# Code block for num_orders_quality_check_operator
+
+def num_orders_quality_check():
+    customer_courier_conversations = read_parquet(spark, output_dir, customer_courier_conversations_filename)
+    customer_courier_conversations.createOrReplaceTempView("customer_courier_conversations")
+
+    customer_courier_chat_messages = \
+        read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename)
+    customer_courier_chat_messages.createOrReplaceTempView("customer_courier_chat_messages")
+
+    count_orders_in_conversations_dataset = spark.sql("""
+        SELECT
+            count(order_id)
+        FROM
+            customer_courier_conversations
+        
+    """).collect()[0][0]
+
+    count_orders_in_messages_dataset = spark.sql("""
+            SELECT
+                count( DISTINCT orderId)
+            FROM
+                customer_courier_chat_messages
+                
+        """).collect()[0][0]
+
+    if count_orders_in_conversations_dataset != count_orders_in_messages_dataset:
+        raise ValueError("Number of unique orderIds in the initial dataset ({}) not "
+                         "equal to the number of orders in the resulting dataset ({})"
+                         .format(count_orders_in_messages_dataset, count_orders_in_conversations_dataset))
+
+    logging.info("Data quality check on the number of records on the final set passed: {}"
+                 .format(count_orders_in_conversations_dataset))
+
+
+num_orders_quality_check_operator = PythonOperator(
+    task_id="Number_orders_quality_check",
+    python_callable=num_orders_quality_check,
+    dag=dag
+)
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------------------------------
+# Code block for create_catalog_operator
+
+def create_catalog():
+    def create_directory_structure_json(path):
+        result = {
+            "name": os.path.basename(path),
+            "type": "directory",
+            "children": []
+        }
+
+        if os.path.isdir(path):
+            for item in os.listdir(path):
+                item_path = os.path.join(path, item)
+                if os.path.isdir(item_path):
+                    result["children"].append(create_directory_structure_json(item_path))
+                else:
+                    file_type = os.path.splitext(item)[1][1:]
+                    if file_type in ["json", "parquet"]:
+                        result["children"].append({
+                            "name": item,
+                            "type": os.path.splitext(item)[1][1:]
+                        })
+
+        return result
+
+    directory_path = '/data_lake'
+
+    if os.path.exists(directory_path) and os.path.isdir(directory_path):
+        directory_structure_json = create_directory_structure_json(directory_path)
+
+        # Write the JSON to a file
+        with open('/catalog/data_lake_catalog.json', 'w') as json_file:
+            json.dump(directory_structure_json, json_file, indent=4)
+        print("JSON structure saved to 'directory_structure.json'")
+    else:
+        print(f"The directory '{directory_path}' does not exist.")
+
+
+create_catalog_operator = PythonOperator(
+    task_id="Create_catalog",
+    python_callable=create_catalog,
+    dag=dag
+)
+# -----------------------------------------------------------------------------------------------------------------------
+
+tasks_to_be_executed_in_parallel = [first_message_senders_operator,
+                                    first_responsetime_delays_operator,
+                                    last_message_order_stage_operator,
+                                    aggregate_fields_operator]
+
 # setting the DAG dependencies
-enhance_dataset_operator >> [first_message_senders_operator,
-                             first_responsetime_delays_operator,
-                             last_message_order_stage_operator,
-                             aggregate_fields_operator] >> customer_courier_conversations_operator
+start_operator >> enhance_dataset_operator >> tasks_to_be_executed_in_parallel >> \
+customer_courier_conversations_operator >> num_orders_quality_check_operator >> create_catalog_operator

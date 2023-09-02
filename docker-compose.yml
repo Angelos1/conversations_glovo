@@ -10,3 +10,4 @@ services:
       - ./airflow:/opt/miniconda3/lib/python3.11/site-packages/airflow/example_dags
       - ./data_lake/input:/data_lake/input
       - ./data_lake/output:/data_lake/output
+      - ./catalog:/catalog
