@@ -1,0 +1,12 @@
+version: '3'
+services:
+  airflow_pyspark:
+    build:
+      context: .
+      dockerfile: docker/airflow_pyspark/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow:/opt/miniconda3/lib/python3.11/site-packages/airflow/example_dags
+      - ./data_lake/input:/data_lake/input
+      - ./data_lake/output:/data_lake/output
