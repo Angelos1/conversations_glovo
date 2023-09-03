@@ -1,0 +1,775 @@
+{
+    "name": "data_lake",
+    "type": "directory",
+    "children": [
+        {
+            "name": "2023-09-03",
+            "type": "directory",
+            "children": [
+                {
+                    "name": "aggregations",
+                    "type": "directory",
+                    "children": [
+                        {
+                            "name": "part-00000-c4a8eee6-6d6c-444f-a57d-8c0c75f86208-c000.snappy.parquet",
+                            "type": "parquet"
+                        }
+                    ]
+                },
+                {
+                    "name": "customer_courier_chat_messages_enhanced",
+                    "type": "directory",
+                    "children": [
+                        {
+                            "name": "year=2019",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "month=1",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=10",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=11",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=12",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=2",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=3",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=4",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=5",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=6",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=7",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=8",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=9",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "year=2020",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "month=1",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=10",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=11",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=12",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=2",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=3",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=4",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=5",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=6",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=7",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=8",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=9",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "year=2021",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "month=1",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=10",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=11",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=12",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=2",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=3",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=4",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=5",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=6",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=7",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=8",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "month=9",
+                                    "type": "directory",
+                                    "children": [
+                                        {
+                                            "name": "part-00000-a8a0cdf7-41f4-4103-bdac-3589c13f61f5.c000.snappy.parquet",
+                                            "type": "parquet"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "customer_courier_conversations",
+                    "type": "directory",
+                    "children": [
+                        {
+                            "name": "city_code=AGP",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=ALC",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=BCN",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=BIO",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=GRO",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=GRX",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=IBZ",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=LCG",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=LEI",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=LPA",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=MAD",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=MAH",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=MJV",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=ODB",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=OVD",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=PMI",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=PNA",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=QGJ",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=REU",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=SCQ",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=SDR",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=SLM",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=TFN",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=TFS",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=VGO",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=VIT",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=VLC",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=VLL",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=XRY",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=YJD",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "city_code=ZAZ",
+                            "type": "directory",
+                            "children": [
+                                {
+                                    "name": "part-00000-8c70b9c9-4c7e-42bb-8dc6-fdaf82e3dd60.c000.snappy.parquet",
+                                    "type": "parquet"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "customer_courier_conversations.csv",
+                    "type": "directory",
+                    "children": []
+                },
+                {
+                    "name": "first_message_senders",
+                    "type": "directory",
+                    "children": [
+                        {
+                            "name": "part-00000-59dd91d5-5fa2-4fae-806e-4d545dc15c33-c000.snappy.parquet",
+                            "type": "parquet"
+                        },
+                        {
+                            "name": "part-00001-59dd91d5-5fa2-4fae-806e-4d545dc15c33-c000.snappy.parquet",
+                            "type": "parquet"
+                        }
+                    ]
+                },
+                {
+                    "name": "first_responsetime_delays",
+                    "type": "directory",
+                    "children": [
+                        {
+                            "name": "part-00000-45d60e5f-80ee-46dc-ae43-b53e7dbeced3-c000.snappy.parquet",
+                            "type": "parquet"
+                        }
+                    ]
+                },
+                {
+                    "name": "initial_datasets",
+                    "type": "directory",
+                    "children": [
+                        {
+                            "name": "customer_courier_chat_messages.json",
+                            "type": "json"
+                        },
+                        {
+                            "name": "orders.json",
+                            "type": "json"
+                        }
+                    ]
+                },
+                {
+                    "name": "last_message_order_stage",
+                    "type": "directory",
+                    "children": [
+                        {
+                            "name": "part-00000-045e0003-4a4e-4a08-9a26-cbed1e3f8196-c000.snappy.parquet",
+                            "type": "parquet"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

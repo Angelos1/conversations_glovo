@@ -5,6 +5,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.functions import unix_timestamp, when, first, col, min, row_number, year, month
 from pyspark.sql import SparkSession
 from datetime import datetime, date, timedelta
+import shutil
 import logging
 import os
 import json
@@ -12,13 +13,14 @@ import json
 # execution date of the pipeline
 date_today = date.today()
 
-input_dir = "/data_lake/input"
-output_dir = "/data_lake/output/{}".format(date_today)
+input_dir = '/input'
+output_dir = '/data_lake/{}'.format(date_today)
+initial_datasets_dir = '{}/initial_datasets'.format(output_dir)
 
 # filenames for the data files that are created in between the ETL steps
-customer_courier_chat_messages_filename = "customer_courier_chat_messages"
-customer_courier_chat_messages_enhanced_filename = "customer_courier_chat_messages_enhanced"
-first_message_senders_filename = "first_message_senders"
+customer_courier_chat_messages_filename = 'customer_courier_chat_messages'
+customer_courier_chat_messages_enhanced_filename = 'customer_courier_chat_messages_enhanced'
+first_message_senders_filename = 'first_message_senders'
 first_responsetime_delays_filename = 'first_responsetime_delays'
 last_message_order_stage_filename = 'last_message_order_stage'
 aggregations_filename = 'aggregations'
@@ -49,6 +51,45 @@ start_operator = DummyOperator(task_id='Begin_execution', dag=dag)
 
 
 # -----------------------------------------------------------------------------------------------------------------------
+# Code block for initial_datasets_to_datalake_operator
+
+def initial_datasets_to_datalake():
+    """
+    The callable function of the initial_datasets_to_datalake_operator.
+
+    Copies the initial datasets (chat-messages and orders datasets) inside the initial_datasets directory
+    in the data lake
+
+    """
+
+    # Get a list of all files in the source directory
+    files_to_copy = os.listdir(input_dir)
+
+    # Create initial_datasets_dir in the datalake
+    if not os.path.exists(initial_datasets_dir):
+        os.makedirs(initial_datasets_dir)
+
+    # Copy each file from the source to the destination
+    for file_name in files_to_copy:
+        source_file_path = os.path.join(input_dir, file_name)
+        destination_file_path = os.path.join(initial_datasets_dir, file_name)
+        shutil.copy(source_file_path, destination_file_path)
+        logging.info('Copied {} to {}'.format(file_name, destination_file_path))
+
+    logging.info('All files copied successfully.')
+
+
+input_datasets_to_datalake_operator = PythonOperator(
+    task_id='Copy_initial_datasets',
+    python_callable=initial_datasets_to_datalake,
+    dag=dag
+)
+
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------------------------------------------------
 # Code block for enhance_dataset_operator
 
 def enhance_dataset():
@@ -56,7 +97,7 @@ def enhance_dataset():
     The callable function of the enhance_dataset_operator.
 
     Enhances the initial customer_courier_chat_messages dataset by adding year, month
-    and timestamp columns of the 'messageSentTime' columns.
+    and timestamp columns derived from the 'messageSentTime' column.
 
     Writes the result to a parquet file in the data lake.
 
@@ -346,6 +387,9 @@ def customer_courier_conversations_stats():
         .mode('overwrite') \
         .parquet('{}/{}'.format(output_dir, customer_courier_conversations_filename))
 
+    customer_courier_conversations_stats\
+        .write.mode("overwrite")\
+        .csv('{}/{}.csv'.format(output_dir, customer_courier_conversations_filename), header=True)
 
 customer_courier_conversations_operator = PythonOperator(
     task_id='Customer_courier_conversations',
@@ -451,10 +495,11 @@ def create_catalog():
 
     directory_path = '/data_lake'
 
+    # create initial_sets directory in th data_lake
     if os.path.exists(directory_path) and os.path.isdir(directory_path):
         directory_structure_json = create_directory_structure_json(directory_path)
 
-        # Write the JSON to a file
+        # Write the JSON to  the catalog file
         with open('/catalog/data_lake_catalog.json', 'w') as json_file:
             json.dump(directory_structure_json, json_file, indent=4)
         print("JSON structure saved to 'directory_structure.json'")
@@ -469,9 +514,6 @@ create_catalog_operator = PythonOperator(
 )
 # -----------------------------------------------------------------------------------------------------------------------
 
-
-# -----------------------------------------------------------------------------------------------------------------------
-
 # tasks that will run in parallel
 tasks_to_be_executed_in_parallel = [first_message_senders_operator,
                                     first_responsetime_delays_operator,
@@ -479,7 +521,8 @@ tasks_to_be_executed_in_parallel = [first_message_senders_operator,
                                     aggregate_fields_operator]
 
 # setting the DAG dependencies
-start_operator >> enhance_dataset_operator >> tasks_to_be_executed_in_parallel >> \
+start_operator >> input_datasets_to_datalake_operator >> enhance_dataset_operator
+enhance_dataset_operator >> tasks_to_be_executed_in_parallel >> customer_courier_conversations_operator
 customer_courier_conversations_operator >> num_orders_quality_check_operator >> create_catalog_operator
 
-# -----------------------------------------------------------------------------------------------------------------------
+
