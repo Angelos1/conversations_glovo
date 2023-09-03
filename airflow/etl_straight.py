@@ -19,17 +19,17 @@ output_dir = "/data_lake/output/{}".format(date_today)
 customer_courier_chat_messages_filename = "customer_courier_chat_messages"
 customer_courier_chat_messages_enhanced_filename = "customer_courier_chat_messages_enhanced"
 first_message_senders_filename = "first_message_senders"
-first_responsetime_delays_filename = "first_responsetime_delays"
-last_message_order_stage_filename = "last_message_order_stage"
-aggregations_filename = "aggregations"
-customer_courier_conversations_filename = "customer_courier_conversations"
+first_responsetime_delays_filename = 'first_responsetime_delays'
+last_message_order_stage_filename = 'last_message_order_stage'
+aggregations_filename = 'aggregations'
+customer_courier_conversations_filename = 'customer_courier_conversations'
+
 
 def read_parquet(spark_session, dir, filename):
-    return spark_session.read.parquet("{}/{}".format(dir, filename))
+    return spark_session.read.parquet('{}/{}'.format(dir, filename))
 
-first_message_senders_filename = "first_message_senders"
 
-spark = SparkSession.builder.appName("ConversationAggregation").master("local").getOrCreate()
+spark = SparkSession.builder.appName('ConversationAggregation').master('local').getOrCreate()
 
 default_args = {
     'owner': 'Glovo',
@@ -42,7 +42,7 @@ dag = DAG('conversations_pipeline',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
           start_date=datetime.now(),
-          schedule_interval="@monthly"
+          schedule_interval='@monthly'
           )
 
 start_operator = DummyOperator(task_id='Begin_execution', dag=dag)
@@ -50,38 +50,58 @@ start_operator = DummyOperator(task_id='Begin_execution', dag=dag)
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for enhance_dataset_operator
+
 def enhance_dataset():
-    customer_courier_messages = spark.read.option("multiline", "true") \
-        .json("{}/{}.json".format(input_dir, customer_courier_chat_messages_filename))
+    """
+    The callable function of the enhance_dataset_operator.
+
+    Enhances the initial customer_courier_chat_messages dataset by adding year, month
+    and timestamp columns of the 'messageSentTime' columns.
+
+    Writes the result to a parquet file in the data lake.
+
+    """
+    customer_courier_messages = spark.read.option('multiline', 'true') \
+        .json('{}/{}.json'.format(input_dir, customer_courier_chat_messages_filename))
 
     customer_courier_messages_enhanced = customer_courier_messages \
-        .withColumn("messageSentTimestamp", unix_timestamp("messageSentTime", "yyyy-MM-dd'T'HH:mm:ss'Z'")) \
-        .withColumn("year", year("messageSentTime")) \
-        .withColumn("month", month("messageSentTime"))
+        .withColumn('messageSentTimestamp', unix_timestamp('messageSentTime', "yyyy-MM-dd'T'HH:mm:ss'Z'")) \
+        .withColumn('year', year('messageSentTime')) \
+        .withColumn('month', month('messageSentTime'))
 
-    customer_courier_messages_enhanced.write.option("header", True) \
-        .partitionBy("year", "month") \
-        .mode("overwrite") \
-        .parquet("{}/{}".format(output_dir, customer_courier_chat_messages_enhanced_filename))
+    customer_courier_messages_enhanced.write.option('header', True) \
+        .partitionBy('year', 'month') \
+        .mode('overwrite') \
+        .parquet('{}/{}'.format(output_dir, customer_courier_chat_messages_enhanced_filename))
 
 
 enhance_dataset_operator = PythonOperator(
-    task_id="Enhance_dataset",
+    task_id='Enhance_dataset',
     python_callable=enhance_dataset,
     dag=dag
 )
+
+
 # -----------------------------------------------------------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for first_message_senders_operator
 
 def find_first_message_senders():
-    # required_fields_df = spark.read.parquet("{}/{}".format(output_dir, customer_courier_chat_messages_enhanced_filename)) \
-    #     .select("orderId", "senderAppType", "chatStartedByMessage")
-    required_fields_df = read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename) \
-        .select("orderId", "senderAppType", "chatStartedByMessage")
+    """
+    The callable function of the first_message_senders_operator.
 
-    required_fields_df.createOrReplaceTempView("required_fields")
+    Calculates the first_message_by field for each conversation.
+
+    Writes the result to a parquet file in the data lake.
+
+    """
+
+    required_fields_df = read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename) \
+        .select('orderId', 'senderAppType', 'chatStartedByMessage')
+
+    required_fields_df.createOrReplaceTempView('required_fields')
 
     # Identify the senders of the first messages for each order
     first_message_senders = spark.sql("""
@@ -94,70 +114,92 @@ def find_first_message_senders():
             chatStartedByMessage = true
     """)
 
-    first_message_senders.write.option("header", True) \
-        .mode("overwrite") \
-        .parquet("{}/{}".format(output_dir, first_message_senders_filename))
+    first_message_senders.write.option('header', True) \
+        .mode('overwrite') \
+        .parquet('{}/{}'.format(output_dir, first_message_senders_filename))
 
 
 first_message_senders_operator = PythonOperator(
-    task_id="First_message_senders",
+    task_id='First_message_senders',
     python_callable=find_first_message_senders,
     dag=dag
 )
+
+
 # -----------------------------------------------------------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for first_responsetime_delays_operator
 
 def find_first_responsetime_delays():
-    # finding first_responsetime_delay_seconds
-    # required_fields_df = spark.read.parquet("{}/{}".format(output_dir, customer_courier_chat_messages_enhanced_filename)) \
-    #     .select("orderId", "fromId", "toId", "messageSentTimestamp")
+    """
+    The callable function of the first_responsetime_delays_operator.
+
+    Calculates the responsetime_delay_from_first field for each conversation using a Window function.
+
+    Writes the result to a parquet file in the data lake.
+
+    """
+    # reading only the required fields for this task. Pyspark dataframes are optimized with parquet files
+    # and they read only the fields that we select (they don't read the whole parquet file).
     required_fields_df = read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename) \
-        .select("orderId", "fromId", "toId", "messageSentTimestamp")
+        .select('orderId', 'fromId', 'toId', 'messageSentTimestamp')
 
-    window_spec = Window.partitionBy("orderId").orderBy("messageSentTimestamp")
+    window_spec = Window.partitionBy('orderId').orderBy('messageSentTimestamp')
 
-    response_time_delays_df = required_fields_df.withColumn("responsetime_delay_from_first",
-                                                            when(col("fromId") != first("fromId").over(window_spec),
-                                                                 col("messageSentTimestamp") - first(
-                                                                     "messageSentTimestamp").over(
-                                                                     window_spec)
-                                                                 )
-                                                            )
+    # dataframe for calculating the response time delay from the first message for each message in a chat
+    response_time_delays_df = \
+        required_fields_df \
+            .withColumn('responsetime_delay_from_first',
+                        when(col('fromId') != first('fromId').over(window_spec),
+                             col('messageSentTimestamp') - first('messageSentTimestamp').over(window_spec)
+                             )
+                        )
+
+    # dataframe for calculating the time elapsed until the first message was responded for each chat
     first_response_time_delays = response_time_delays_df \
-        .groupBy("orderId").agg(min("responsetime_delay_from_first").alias("first_responsetime_delay_seconds")) \
-        .select("orderId", "first_responsetime_delay_seconds")
+        .groupBy('orderId').agg(min('responsetime_delay_from_first').alias('first_responsetime_delay_seconds')) \
+        .select('orderId', 'first_responsetime_delay_seconds')
 
-    first_response_time_delays.write.option("header", True) \
-        .mode("overwrite") \
-        .parquet("{}/{}".format(output_dir, first_responsetime_delays_filename))
+    first_response_time_delays.write.option('header', True) \
+        .mode('overwrite') \
+        .parquet('{}/{}'.format(output_dir, first_responsetime_delays_filename))
 
 
 first_responsetime_delays_operator = PythonOperator(
-    task_id="First_responsetime_delays",
+    task_id='First_responsetime_delays',
     python_callable=find_first_responsetime_delays,
     dag=dag
 )
+
+
 # -----------------------------------------------------------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for last_message_order_stage_operator
 
 def find_last_message_order_stage():
-    # finding latest order stage
-    # required_fields_df = spark.read.parquet("/data_lake/output/{}".format(customer_courier_chat_messages_enhanced_filename)) \
-    #     .select("orderId", "orderStage", "messageSentTimestamp")
+    """
+    The callable function of the last_message_order_stage_operator.
+
+    Calculates the last_message_order_stage field for each conversation using a Window function.
+
+    Writes the result to a parquet file in the data lake.
+
+    """
+
     required_fields_df = read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename) \
-        .select("orderId", "orderStage", "messageSentTimestamp")
+        .select('orderId', 'orderStage', 'messageSentTimestamp')
 
-    window_spec = Window.partitionBy("orderId").orderBy(col("messageSentTimestamp").desc())
+    window_spec = Window.partitionBy('orderId').orderBy(col('messageSentTimestamp').desc())
 
-    ordered_by_stages = required_fields_df.withColumn("row_number", row_number().over(window_spec))
+    ordered_by_stages = required_fields_df.withColumn('row_number', row_number().over(window_spec))
 
-    ordered_by_stages.createOrReplaceTempView("ordered_by_stages")
+    ordered_by_stages.createOrReplaceTempView('ordered_by_stages')
 
-    latest_order_stage = spark.sql("""
+    latest_order_stage = spark.sql('''
         SELECT
             orderId,
             orderStage as last_message_order_stage
@@ -165,30 +207,41 @@ def find_last_message_order_stage():
             ordered_by_stages
         WHERE
             row_number = 1
-    """)
+    ''')
 
-    latest_order_stage.write.option("header", True) \
-        .mode("overwrite") \
-        .parquet("{}/{}".format(output_dir, last_message_order_stage_filename))
+    latest_order_stage.write.option('header', True) \
+        .mode('overwrite') \
+        .parquet('{}/{}'.format(output_dir, last_message_order_stage_filename))
 
 
 last_message_order_stage_operator = PythonOperator(
-    task_id="Last_message_order_stage",
+    task_id='Last_message_order_stage',
     python_callable=find_last_message_order_stage,
     dag=dag
 )
+
+
 # -----------------------------------------------------------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for aggregate_fields_operator
 
 def calculate_aggregate_fields():
-    # calculating the final fields that can be calculated with an aggregation on the initial messages dataset
-    # customer_courier_messages = spark.read.parquet("{}/{}".format(output_dir, customer_courier_chat_messages_enhanced_filename)) \
+    """
+    The callable function of the aggregate_fields_operator.
+
+    Calculates the order_id, first_courier_message, first_customer_message, num_messages_courier,
+    num_messages_customer, conversation_started_at, last_message_time, last_message_order_stage fields
+    for each conversation. These are all fields that are calculated by aggregations with 'group by orderId'
+
+    Writes the result to a parquet file in the data lake.
+
+    """
 
     customer_courier_messages = read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename)
 
-    customer_courier_messages.createOrReplaceTempView("customer_courier_messages")
+    customer_courier_messages.createOrReplaceTempView('customer_courier_messages')
 
     aggregate_query = """
         SELECT
@@ -208,37 +261,49 @@ def calculate_aggregate_fields():
 
     aggregations = spark.sql(aggregate_query)
 
-    aggregations.write.option("header", True) \
-        .mode("overwrite") \
-        .parquet("{}/{}".format(output_dir, aggregations_filename))
+    aggregations.write.option('header', True) \
+        .mode('overwrite') \
+        .parquet('{}/{}'.format(output_dir, aggregations_filename))
 
 
 aggregate_fields_operator = PythonOperator(
-    task_id="Aggregate_fields",
+    task_id='Aggregate_fields',
     python_callable=calculate_aggregate_fields,
     dag=dag
 )
+
+
 # -----------------------------------------------------------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for customer_courier_conversations_operator
 
 def customer_courier_conversations_stats():
+    """
+    The callable function of the customer_courier_conversations_operator.
+
+    Calculates the final dataset of customer_courier_conversations by joining all the previous results.
+
+    Writes the result to a parquet file in the data lake.
+
+    """
+
     # reading the nessesary files and creating the required pyspark temporary views for the final query
     aggregations = read_parquet(spark, output_dir, aggregations_filename)
-    aggregations.createOrReplaceTempView("aggregations")
+    aggregations.createOrReplaceTempView('aggregations')
 
-    orders = spark.read.option("multiline", "true").json("{}/{}.json".format(input_dir, "orders"))
-    orders.createOrReplaceTempView("orders")
+    orders = spark.read.option('multiline', 'true').json('{}/{}.json'.format(input_dir, 'orders'))
+    orders.createOrReplaceTempView('orders')
 
     first_message_senders = read_parquet(spark, output_dir, first_message_senders_filename)
-    first_message_senders.createOrReplaceTempView("first_message_senders")
+    first_message_senders.createOrReplaceTempView('first_message_senders')
 
     first_responsetime_delays = read_parquet(spark, output_dir, first_responsetime_delays_filename)
-    first_responsetime_delays.createOrReplaceTempView("first_responsetime_delays")
+    first_responsetime_delays.createOrReplaceTempView('first_responsetime_delays')
 
     last_message_stage = read_parquet(spark, output_dir, last_message_order_stage_filename)
-    last_message_stage.createOrReplaceTempView("last_message_stage")
+    last_message_stage.createOrReplaceTempView('last_message_stage')
 
     final_query = """
         SELECT
@@ -276,14 +341,14 @@ def customer_courier_conversations_stats():
 
     customer_courier_conversations_stats = spark.sql(final_query)
 
-    customer_courier_conversations_stats.write.option("header", True) \
-        .partitionBy("city_code") \
-        .mode("overwrite") \
-        .parquet("{}/{}".format(output_dir, customer_courier_conversations_filename))
+    customer_courier_conversations_stats.write.option('header', True) \
+        .partitionBy('city_code') \
+        .mode('overwrite') \
+        .parquet('{}/{}'.format(output_dir, customer_courier_conversations_filename))
 
 
 customer_courier_conversations_operator = PythonOperator(
-    task_id="Customer_courier_conversations",
+    task_id='Customer_courier_conversations',
     python_callable=customer_courier_conversations_stats,
     dag=dag
 )
@@ -291,16 +356,28 @@ customer_courier_conversations_operator = PythonOperator(
 
 # -----------------------------------------------------------------------------------------------------------------------
 
+
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for num_orders_quality_check_operator
 
 def num_orders_quality_check():
+    """
+    The callable function of the num_orders_quality_check_operator.
+
+    A quality check for our customer_courier_conversations result dataset that checks if the number
+    of conversations in the resulting dataset is the same as the number of conversations in the initial messages
+    dataset.
+
+    Compares the number of unique orderIds from the initial messages dataset to the number of orderIds in the
+    customer_courier_conversations
+
+    """
     customer_courier_conversations = read_parquet(spark, output_dir, customer_courier_conversations_filename)
-    customer_courier_conversations.createOrReplaceTempView("customer_courier_conversations")
+    customer_courier_conversations.createOrReplaceTempView('customer_courier_conversations')
 
     customer_courier_chat_messages = \
         read_parquet(spark, output_dir, customer_courier_chat_messages_enhanced_filename)
-    customer_courier_chat_messages.createOrReplaceTempView("customer_courier_chat_messages")
+    customer_courier_chat_messages.createOrReplaceTempView('customer_courier_chat_messages')
 
     count_orders_in_conversations_dataset = spark.sql("""
         SELECT
@@ -318,45 +395,56 @@ def num_orders_quality_check():
                 
         """).collect()[0][0]
 
+    # condition for not passing the quality check
     if count_orders_in_conversations_dataset != count_orders_in_messages_dataset:
-        raise ValueError("Number of unique orderIds in the initial dataset ({}) not "
-                         "equal to the number of orders in the resulting dataset ({})"
+        # throw an exception so that the task fails and the pipeline stops if the quality check is not passed
+        raise ValueError('Number of unique orderIds in the initial dataset ({}) not '
+                         'equal to the number of orders in the resulting dataset ({})'
                          .format(count_orders_in_messages_dataset, count_orders_in_conversations_dataset))
 
-    logging.info("Data quality check on the number of records on the final set passed: {}"
+    logging.info('Data quality check on the number of records on the final set passed: {}'
                  .format(count_orders_in_conversations_dataset))
 
 
 num_orders_quality_check_operator = PythonOperator(
-    task_id="Number_orders_quality_check",
+    task_id='Number_orders_quality_check',
     python_callable=num_orders_quality_check,
     dag=dag
 )
 
+
 # -----------------------------------------------------------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Code block for create_catalog_operator
 
 def create_catalog():
+    """
+    The callable function of the create_catalog_operator.
+
+    Creates the data lake catalog folder structure.
+
+    """
+
     def create_directory_structure_json(path):
         result = {
-            "name": os.path.basename(path),
-            "type": "directory",
-            "children": []
+            'name': os.path.basename(path),
+            'type': 'directory',
+            'children': []
         }
 
         if os.path.isdir(path):
             for item in os.listdir(path):
                 item_path = os.path.join(path, item)
                 if os.path.isdir(item_path):
-                    result["children"].append(create_directory_structure_json(item_path))
+                    result['children'].append(create_directory_structure_json(item_path))
                 else:
                     file_type = os.path.splitext(item)[1][1:]
-                    if file_type in ["json", "parquet"]:
-                        result["children"].append({
-                            "name": item,
-                            "type": os.path.splitext(item)[1][1:]
+                    if file_type in ['json', 'parquet']:
+                        result['children'].append({
+                            'name': item,
+                            'type': os.path.splitext(item)[1][1:]
                         })
 
         return result
@@ -375,12 +463,16 @@ def create_catalog():
 
 
 create_catalog_operator = PythonOperator(
-    task_id="Create_catalog",
+    task_id='Create_catalog',
     python_callable=create_catalog,
     dag=dag
 )
 # -----------------------------------------------------------------------------------------------------------------------
 
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+# tasks that will run in parallel
 tasks_to_be_executed_in_parallel = [first_message_senders_operator,
                                     first_responsetime_delays_operator,
                                     last_message_order_stage_operator,
@@ -389,3 +481,5 @@ tasks_to_be_executed_in_parallel = [first_message_senders_operator,
 # setting the DAG dependencies
 start_operator >> enhance_dataset_operator >> tasks_to_be_executed_in_parallel >> \
 customer_courier_conversations_operator >> num_orders_quality_check_operator >> create_catalog_operator
+
+# -----------------------------------------------------------------------------------------------------------------------
