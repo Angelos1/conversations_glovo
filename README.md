@@ -1,3 +1,8 @@
+<!--
+Open the README.md file from my git repository in order to view it 
+in its rendered version.
+https://github.com/Angelos1/conversations_glovo/blob/main/README.md
+-->
 ## Assumptions
 
 1) Our pipeline is running monthly on data on the input folder. So I assume that the "input" directory is 
@@ -17,9 +22,6 @@ and all spark jobs would run in the Spark cluster so that we take advantage of t
 In order to achieve that we would instantiate the ```SparkSession``` in **conversations_etl.py** file 
 in the Spark cluster by changing the ```.master('local')```   with ```.master(<spark_cluster_master_connection_URL>)```.
  
-## structure of the etl.py file
-Explain why such a big file and explain the #----- blocks that are for better readability
-
 
 ## Building and running the pipeline
 
@@ -48,7 +50,9 @@ When the pipeline runs successfully we have the following directory structure cr
 A directory named with the date that the pipeline has run is created and inside it has all the datasets for 
 the pipeline:
 * The **'initial_datasets'** contains the initial json files that where received in the input folder.
-* The **'customer_courier_conversations'** contains the final result set in _parquet_ files partitioned by city_code
+* The **'customer_courier_conversations'** contains the final dataset of the pipeline in _parquet_ files partitioned by city_code
+* The **'customer_courier_conversations.csv'** contains the final dataset in a csv format so tha
+the assessor can view it in tabular format.
 * The rest contain datasets that are created by the intermediate steps of the pipeline and eventually are joined
 to create the final **'customer_courier_conversations'** final data set. 
 The **'customer_courier_chat_messages_enhanced'** contains the data from the initial chat messages json file
@@ -70,6 +74,85 @@ data by year or month. That way they don't need to retrieve the whole dataset.
 If this was a real dataset I would do some exploration of data in the beginning to find which fields 
 might be closer to uniform distribution and partition by them.
 
+
+## Structure of the airflow/conversations_etl.py file
+The airflow/conversations_etl.py file is the file where the tasks of the pipeline are
+defined. Airflow reads this file and creates the pipeline that you see in the Airflow UI.
+SO, this file represents the whole Airflow DAG.
+
+I could have used better code standards (e.g. create Python modules and import
+them in this file) but you can see that I just created a big Python file while I could have
+broken down the program into more files.
+The reason behind this is that the airflow installation in the docker container
+could not recognise any modules defined outside of the DAG python file (airflow/conversations_etl.py).
+I troubleshoot it extensively but I didn’t find the issue. Therefore I decided to develop one big python file
+so that I present an airflow dockerized solution. I can explain further when we discuss together.
+
+To make the code more readable for the assessor, I segmented the it in the airflow/conversations_etl.py file.
+I put the code required for each of the defined Airflow tasks in blocks of code bordered as below:
+```
+# -----------------------
+# Code block for task
+.
+.
+.
+# -----------------------
+```
+For example the code for the first Airflow task is in the following block: 
+
+```
+# -----------------------------------------------------------------------------------------------------------------------
+# Code block for initial_datasets_to_datalake_operator
+
+def initial_datasets_to_datalake():
+    """
+    The callable function of the initial_datasets_to_datalake_operator.
+
+    Copies the initial datasets (chat-messages and orders datasets) inside the initial_datasets directory
+    in the data lake
+
+    """
+
+    # Get a list of all files in the source directory
+    files_to_copy = os.listdir(input_dir)
+
+    # Create initial_datasets_dir in the datalake
+    if not os.path.exists(initial_datasets_dir):
+        os.makedirs(initial_datasets_dir)
+
+    # Copy each file from the source to the destination
+    for file_name in files_to_copy:
+        source_file_path = os.path.join(input_dir, file_name)
+        destination_file_path = os.path.join(initial_datasets_dir, file_name)
+        shutil.copy(source_file_path, destination_file_path)
+        logging.info('Copied {} to {}'.format(file_name, destination_file_path))
+
+    logging.info('All files copied successfully.')
+
+
+input_datasets_to_datalake_operator = PythonOperator(
+    task_id='Copy_initial_datasets',
+    python_callable=initial_datasets_to_datalake,
+    dag=dag
+)
+# -----------------------------------------------------------------------------------------------------------------------
+```
+So, each Airflow task is defined these code blocks and at the end
+of the file we define the task dependencies:
+```
+# tasks that will run in parallel
+tasks_to_be_executed_in_parallel = [first_message_senders_operator,
+                                    first_responsetime_delays_operator,
+                                    last_message_order_stage_operator,
+                                    aggregate_fields_operator]
+
+# setting the DAG dependencies
+start_operator >> input_datasets_to_datalake_operator >> enhance_dataset_operator
+enhance_dataset_operator >> tasks_to_be_executed_in_parallel >> customer_courier_conversations_operator
+customer_courier_conversations_operator >> num_orders_quality_check_operator >> create_catalog_operator
+```
+This defines the structure of the graph of tasks (Airflow DAG) 
+that I will show you next.
 
 
 

@@ -84,8 +84,6 @@ input_datasets_to_datalake_operator = PythonOperator(
     python_callable=initial_datasets_to_datalake,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -121,8 +119,6 @@ enhance_dataset_operator = PythonOperator(
     python_callable=enhance_dataset,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -165,8 +161,6 @@ first_message_senders_operator = PythonOperator(
     python_callable=find_first_message_senders,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -213,8 +207,6 @@ first_responsetime_delays_operator = PythonOperator(
     python_callable=find_first_responsetime_delays,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -260,8 +252,6 @@ last_message_order_stage_operator = PythonOperator(
     python_callable=find_last_message_order_stage,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -312,8 +302,6 @@ aggregate_fields_operator = PythonOperator(
     python_callable=calculate_aggregate_fields,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -396,8 +384,6 @@ customer_courier_conversations_operator = PythonOperator(
     python_callable=customer_courier_conversations_stats,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -455,8 +441,6 @@ num_orders_quality_check_operator = PythonOperator(
     python_callable=num_orders_quality_check,
     dag=dag
 )
-
-
 # -----------------------------------------------------------------------------------------------------------------------
 
 
